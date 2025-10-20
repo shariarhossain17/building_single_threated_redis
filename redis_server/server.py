@@ -7,7 +7,7 @@ class RedisServer:
         self.host=host
         self.port=port
         self.running=False
-        self.client={}
+        self.clients={}
 
 
     def start(self):
@@ -24,15 +24,25 @@ class RedisServer:
         while self.running:
             try:
                 read,_,_=select.select(
-                    [self.server_socket]+list(self.client.keys()),[],[],1.0
+                    [self.server_socket]+list(self.clients.keys()),[],[],1.0
                 )
-
                 for sock in read:
-                    print(f"sock is here {sock }")
+                    if sock is self.server_socket:
+                        self.accept_client()
+                    else:
+                        self.handle_client(sock)
             except KeyboardInterrupt:
                 break
             except Exception as e:
                 print(f"event loop error {e}")
+    def accept_client(self):
+            client,addr=self.server_socket.accept()
+            client.setblocking(False)
+            self.clients[client]={"addr":addr,"buffer":b""}
+            client.send(b"+ok/r/n")
+    def handle_client(self,sock):
+        print("handle client")
+       
 
     
     def stop(self):
