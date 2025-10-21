@@ -39,7 +39,7 @@ class RedisServer:
             client,addr=self.server_socket.accept()
             client.setblocking(False)
             self.clients[client]={"addr":addr,"buffer":b""}
-            client.send(b"+ok/r/n")
+            client.send(b"+ok\r\n")
     def handle_client(self,client):
         try:
             data=client.recv(1024)
@@ -53,8 +53,13 @@ class RedisServer:
     
 
     def _process_buffer(self,client):
-        print(f"client process:{client}")
-
+        buffer=self.clients[client]["buffer"]
+        print(buffer)
+        while b"\n" in buffer:
+            command,buffer=buffer.split(b"\n",1)
+            if command:
+                response=b"hello\r\n"
+                client.send(response)
     def _disconnect_client(self,client):
         client.close()
         self.clients.pop(client,None)
