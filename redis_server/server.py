@@ -1,6 +1,9 @@
 import select
 import socket
 
+from .command import CommandHandler
+from .storage import Storage
+
 
 class RedisServer:
     def __init__(self,host="localhost",port=6379):
@@ -8,6 +11,8 @@ class RedisServer:
         self.port=port
         self.running=False
         self.clients={}
+        self.storage=Storage()
+        self.command_handler=CommandHandler(self.storage)
 
 
     def start(self):
@@ -57,16 +62,18 @@ class RedisServer:
         while b"\n" in buffer:
             command,buffer=buffer.split(b"\n",1)
             if command:
-                response=self._process_command(command)
-                client.send(response)
+                response=self._process_command(command.decode())
+                client.send(b"\r\nhello")
+
         self.clients[client]["buffer"]=buffer
 
 
     def _process_command(self,command_line):
         parts =command_line.strip().split()
+        print(parts)
         if not parts:
             return error("empty command")
-        return self.command_handler.execute(parts[0],parts[1])
+        return self.command_handler.execute(parts[0],*parts[1:])
         
 
     def _disconnect_client(self,client):
