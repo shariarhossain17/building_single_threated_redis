@@ -9,7 +9,7 @@ class CommandHandler:
             "ECHO":self.echo,
             "SET":self.set,
             "GET":self.get,
-            # "DEL":self.delete,
+            "DEL":self.delete,
             # "EXIST":self.exist,
             # "KEYS":self.keys,
             # "FLUSHALL":self.flushall,
@@ -42,4 +42,13 @@ class CommandHandler:
         if(len(args)!=1):
             return error("wrong number argument for 'get' command")
         return bulk_string(self.storage.get(args[0]))
+    
+    def delete(self,*args):
+        if not args:
+            return error("wrong number argument for del")
+        return integer(self.storage.delete(*args))
+    
+            
+    
+
         
