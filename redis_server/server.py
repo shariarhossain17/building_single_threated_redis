@@ -2,6 +2,7 @@ import select
 import socket
 
 from .command import CommandHandler
+from .response import *
 from .storage import Storage
 
 
@@ -63,14 +64,13 @@ class RedisServer:
             command,buffer=buffer.split(b"\n",1)
             if command:
                 response=self._process_command(command.decode())
-                client.send(b"\r\nhello")
+                client.send(response)
 
         self.clients[client]["buffer"]=buffer
 
 
     def _process_command(self,command_line):
         parts =command_line.strip().split()
-        print(parts)
         if not parts:
             return error("empty command")
         return self.command_handler.execute(parts[0],*parts[1:])
