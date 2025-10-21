@@ -54,19 +54,31 @@ class RedisServer:
 
     def _process_buffer(self,client):
         buffer=self.clients[client]["buffer"]
-        print(buffer)
         while b"\n" in buffer:
             command,buffer=buffer.split(b"\n",1)
             if command:
-                response=b"hello\r\n"
+                response=self._process_command(command)
                 client.send(response)
+        self.clients[client]["buffer"]=buffer
+
+
+    def _process_command(self,command_line):
+        parts =command_line.strip().split()
+        if not parts:
+            return error("empty command")
+        return self.command_handler.execute(parts[0],parts[1])
+        
+
     def _disconnect_client(self,client):
         client.close()
         self.clients.pop(client,None)
     
-        
        
 
     
     def stop(self):
-        self.server_socket.close()
+        self.running=False
+        for client in list(self.clients.keys()):
+            self._disconnect_client(client)
+        if(self.server_socket):
+            self.server_socket.close()
