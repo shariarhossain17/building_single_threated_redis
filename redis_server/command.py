@@ -7,8 +7,8 @@ class CommandHandler:
         self.command={
             "PING":self.ping,
             "ECHO":self.echo,
-            # "SET":self.set,
-            # "GET":self.get,
+            "SET":self.set,
+            "GET":self.get,
             # "DEL":self.delete,
             # "EXIST":self.exist,
             # "KEYS":self.keys,
@@ -26,11 +26,20 @@ class CommandHandler:
             return error(f"unknown command `{command}")
     def ping(self,*args):
         return pong()
+    
+
     def echo(self,*args):
         return simple_string(" ".join(args) if args else simple_string(""))
+    
+
     def set(self,*args):
         if len(args)<2:
             return error("wrong number of argument for set")
         self.storage.set(args[0]," ".join(args[1:]))
         return ok()
     
+    def get(self,*args):
+        if(len(args)!=1):
+            return error("wrong number argument for 'get' command")
+        return self.storage.get(args[0])
+        
