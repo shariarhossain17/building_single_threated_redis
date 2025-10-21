@@ -41,5 +41,5 @@ class CommandHandler:
     def get(self,*args):
         if(len(args)!=1):
             return error("wrong number argument for 'get' command")
-        return self.storage.get(args[0])
+        return bulk_string(self.storage.get(args[0]))
         
