@@ -40,8 +40,26 @@ class RedisServer:
             client.setblocking(False)
             self.clients[client]={"addr":addr,"buffer":b""}
             client.send(b"+ok/r/n")
-    def handle_client(self,sock):
-        print("handle client")
+    def handle_client(self,client):
+        try:
+            data=client.recv(1024)
+            if not data:
+                self._disconnect_client(client)
+                return
+            self.clients[client]["buffer"]+=data
+            self._process_buffer(client)
+        except ConnectionError:
+            self._disconnect_client(client)
+    
+
+    def _process_buffer(self,client):
+        print(f"client process:{client}")
+
+    def _disconnect_client(self,client):
+        client.close()
+        self.clients.pop(client,None)
+    
+        
        
 
     
