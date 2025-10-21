@@ -10,10 +10,10 @@ class CommandHandler:
             "SET":self.set,
             "GET":self.get,
             "DEL":self.delete,
-            # "EXIST":self.exist,
-            # "KEYS":self.keys,
-            # "FLUSHALL":self.flushall,
-            # "INFO":self.info
+            "EXIST":self.exist,
+            "KEYS":self.keys,
+            "FLUSHALL":self.flushall,
+            "INFO":self.info
         }
     
 
@@ -47,6 +47,45 @@ class CommandHandler:
         if not args:
             return error("wrong number argument for del")
         return integer(self.storage.delete(*args))
+    
+    def exist(self,*args):
+        if not args:
+           return error("wrong number argument for exist")
+        return integer(self.storage.exist(*args))
+    
+    def keys(self,*args):
+        keys=self.storage.keys()
+        if not keys:
+            return array([])
+        return array(bulk_string(key) for key in keys)
+    
+    def flushall(self,*args):
+        self.storage.flush()
+        return ok()
+    
+    def info(self,*args):
+        info={
+            "server":{
+                "redis_mini_version":"1,0"
+            },
+            "stats":{
+                "total_command_processed":0
+            },
+            "keyspace":{
+                "dbo":f"keys={len(self.storage.keys())}"
+            },
+            "author":{
+                "developer":" code hacker"
+            }
+        }
+        sections = []
+        for section, data in info.items():
+         sections.append(f"#{section}")
+         sections.extend(f"{k}:{v}" for k, v in data.items())
+
+        return bulk_string("\n".join(sections))
+
+
     
             
     
