@@ -26,3 +26,6 @@ class CommandHandler:
             return error(f"unknown command `{command}")
     def ping(self,*args):
         return pong()
+    def echo(self,*args):
+        return simple_string(" ".join(args) if args else simple_string(""))
+    
