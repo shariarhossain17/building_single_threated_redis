@@ -20,6 +20,8 @@ class CommandHandler:
             return cmd(*args)
         else:
             return error(f"unknown command `{command}")
+    
+    
     def get(self,*args):
         if len(args)!=1:
             return error("wrong number of argument for get command")
